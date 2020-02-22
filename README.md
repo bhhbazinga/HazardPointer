@@ -1,2 +1,2 @@
 # HazardPointer
-Hazard Pointer is a method of memory management in multithreaded programs.
+Hazard Pointer implemented in C++ with RAII style.
