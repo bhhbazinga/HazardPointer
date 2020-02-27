@@ -121,8 +121,8 @@ class Reclaimer {
     }
 
     void Push(ReclaimNode* node) {
-      node->next = head;
-      head = node;
+      node->next = head->next;
+      head->next = node;
     }
 
     ReclaimNode* Pop() {
@@ -130,10 +130,10 @@ class Reclaimer {
         return new ReclaimNode();
       }
 
-      ReclaimNode* temp = head;
-      head = head->next;
-      temp->next = nullptr;
-      return temp;
+      ReclaimNode* node = head->next;
+      head->next = node->next;
+      node->next = nullptr;
+      return node;
     }
 
     ReclaimNode* head;
@@ -250,7 +250,7 @@ void Reclaimer::TryAcquireHazardPointer() {
     global_hp_list_.size.fetch_add(1, std::memory_order_release);
     InternalHazardPointer* old_head = head.load(std::memory_order_acquire);
     do {
-      new_head->next = old_head;
+      new_head->next.store(old_head, std::memory_order_relaxed);
     } while (!head.compare_exchange_weak(old_head, new_head,
                                          std::memory_order_release,
                                          std::memory_order_relaxed));
